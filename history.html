@@ -1,1 +1,209 @@
 // หน้าประวัติการเข้างาน
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติการบันทึก</title>
+    <!-- นำเข้า Tailwind CSS สำหรับการออกแบบ UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- นำเข้า SweetAlert2 สำหรับแสดงกล่องข้อความแจ้งเตือน -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- นำเข้า LIFF SDK ของ LINE -->
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <style>
+        /* เพิ่ม CSS สำหรับการแสดงสถานะการโหลด */
+        #loading {
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 max-w-md mx-auto h-screen">
+    <div class="container p-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <input type="hidden" id="userId" name="userId">
+            <input type="hidden" id="displayName" name="displayName">
+
+            <!-- ส่วนสำหรับแสดงข้อมูลหลัก -->
+            <div id="main-info" class="mb-4">
+                <div class="mb-2"><strong>ชื่อ:</strong> <span id="name-info" class="font-medium text-md"></span></div>
+                <div><strong>รหัสพนักงาน:</strong> <span id="employee-id-info" class="font-medium text-md"></span></div>
+            </div>
+
+            <!-- ตารางแสดงข้อมูลการบันทึก -->
+            <table class="overflow-hidden w-full rounded-lg border border-slate-200 shadow-sm">
+                <thead>
+                    <tr class="bg-slate-800 text-slate-100 shadow-md text-left">
+                        <th class="py-2 text-md px-4">สถานะ</th>
+                        <th class="py-2 text-md px-4">หมายเหตุ</th>
+                        <th class="py-2 text-md px-4">วันที่</th>
+                        <th class="py-2 text-md px-4">เวลา</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table" class="text-sm text-slate-600">
+                    <!-- ข้อมูลการบันทึกจะถูกแสดงในส่วนนี้ -->
+                </tbody>
+            </table>
+            <!-- ตัวควบคุมการแบ่งหน้า -->
+            <div id="pagination-controls" class="mt-4"></div>
+            <!-- แสดงสถานะการโหลด -->
+            <div id="loading" class="text-center text-slate-800 mt-4">กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <script>
+
+        // URL ของ Web App ที่คุณ Deploy ไว้
+        const WEB_APP_URL = ' ';
+        const LIFF_ID = ' '; // Liff ID
+
+        // จำนวนรายการที่จะแสดงต่อหน้า
+        const itemsPerPage = 20;
+        let currentPage = 1;
+
+        // เริ่มต้นการทำงานเมื่อโหลดหน้าเสร็จสิ้น
+        window.onload = function () {
+            initializeLiff();
+        };
+
+        // ฟังก์ชันเริ่มต้น LIFF
+        async function initializeLiff() {
+            await liff.init({ liffId: `${LIFF_ID}` }); // ใช้ LIFF ID ที่กำหนด
+            if (liff.isLoggedIn()) {
+                getUserProfile(); // ถ้าเข้าสู่ระบบแล้ว ให้ดึงข้อมูลโปรไฟล์ผู้ใช้
+            } else {
+                liff.login(); // ถ้ายังไม่ได้เข้าสู่ระบบ ให้พาไปหน้าเข้าสู่ระบบ
+            }
+        }
+
+        // ฟังก์ชันดึงข้อมูลโปรไฟล์ของผู้ใช้
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile(); // ดึงข้อมูลโปรไฟล์จาก LIFF
+                document.getElementById('userId').value = profile.userId;
+                document.getElementById('displayName').value = profile.displayName;
+                fetchData(profile.userId); // ดึงข้อมูลการบันทึกโดยใช้ userId
+            } catch (error) {
+                console.error('Error getting profile data:', error); // แสดงข้อผิดพลาดถ้าดึงข้อมูลไม่สำเร็จ
+            }
+        }
+
+        // ฟังก์ชันดึงข้อมูลจาก Web App
+        async function fetchData(userId) {
+            document.getElementById('loading').style.display = 'block'; // แสดงสถานะการโหลด
+            try {
+                const response = await fetch(`${WEB_APP_URL}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok'); // ตรวจสอบสถานะของการตอบสนอง
+                }
+                const data = await response.json(); // แปลงข้อมูลที่ได้มาเป็น JSON
+                console.log('Fetched data:', data); // ล็อกข้อมูลที่ดึงมาเพื่อการตรวจสอบ
+                const filteredData = data.filter(row => row[11] === userId); // กรองข้อมูลตาม userId (คอลัมน์ที่ 11)
+
+                // แสดงชื่อและรหัสพนักงานจากแถวสุดท้ายของข้อมูลที่กรอง
+                if (filteredData.length > 0) {
+                    const lastRow = filteredData[filteredData.length - 1];
+                    document.getElementById('name-info').textContent = lastRow[2]; // ชื่อ (คอลัมน์ที่ 2)
+                    document.getElementById('employee-id-info').textContent = lastRow[3]; // รหัสพนักงาน (คอลัมน์ที่ 3)
+                }
+
+                buildTable('data-table', filteredData); // สร้างตารางแสดงข้อมูล
+            } catch (error) {
+                console.error('Error fetching data:', error); // แสดงข้อผิดพลาดถ้าดึงข้อมูลไม่สำเร็จ
+                document.getElementById('data-table').innerHTML = '<tr><td colspan="4">Error fetching data. Please check the console for more details.</td></tr>';
+            } finally {
+                document.getElementById('loading').style.display = 'none'; // ซ่อนสถานะการโหลด
+            }
+        }
+
+        // ฟังก์ชันสำหรับจัดรูปแบบวันที่
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // ฟังก์ชันสำหรับจัดรูปแบบเวลา
+        function formatTime(timeString) {
+            const date = new Date(timeString);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
+        // ฟังก์ชันสำหรับสร้างตารางแสดงข้อมูล
+        function buildTable(tableId, values) {
+            const table = document.getElementById(tableId);
+            table.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const reversedValues = values.slice().reverse(); // กลับลำดับข้อมูลเพื่อให้แสดงข้อมูลล่าสุดก่อน
+
+            // แสดงข้อมูลในแต่ละแถว
+            reversedValues.slice(startIndex, endIndex).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.classList.add('border-b', 'hover:bg-slate-100');
+
+                // เปลี่ยนสีของสถานะตามเงื่อนไข
+                const status = row[4];
+                const statusColorClass = status === 'เข้างาน' ? 'text-green-500' : status === 'ออกงาน' ? 'text-red-500' : 'text-slate-700';
+
+                // เพิ่มสถานะ
+                let td = document.createElement('td');
+                td.textContent = status;
+                td.classList.add('py-2', 'px-4', statusColorClass);
+                tr.appendChild(td);
+
+                // เพิ่มหมายเหตุ
+                td = document.createElement('td');
+                td.textContent = row[5];
+                td.classList.add('py-2', 'px-4');
+                tr.appendChild(td);
+
+                // แปลงและเพิ่มวันที่
+                td = document.createElement('td');
+                td.textContent = formatDate(row[6]);
+                td.classList.add('py-2', 'px-4');
+                tr.appendChild(td);
+
+                // แปลงและเพิ่มเวลา
+                td = document.createElement('td');
+                td.textContent = formatTime(row[7]);
+                td.classList.add('py-2', 'px-4');
+                tr.appendChild(td);
+
+                table.appendChild(tr);
+            });
+
+            updatePaginationControls(values.length); // อัปเดตตัวควบคุมการแบ่งหน้า
+        }
+
+        // ฟังก์ชันสำหรับอัปเดตตัวควบคุมการแบ่งหน้า
+        function updatePaginationControls(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const paginationControls = document.getElementById('pagination-controls');
+            paginationControls.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    fetchData(document.getElementById('userId').value); // ดึงข้อมูลใหม่เมื่อเปลี่ยนหน้า
+                });
+                pageButton.classList.add('py-1', 'px-3', 'm-1', 'border', 'rounded');
+                if (i === currentPage) {
+                    pageButton.classList.add('bg-black', 'text-white'); // ไฮไลท์หน้าปัจจุบัน
+                }
+                paginationControls.appendChild(pageButton);
+            }
+        }
+    </script>
+</body>
+
+</html>
