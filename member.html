@@ -1,146 +1,428 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="th_TH">
+<html lang="en">
+
 <head>
-      <script type="module" crossorigin src="https://static.line-scdn.net/line_web_login/edge/dist/assets/polyfills-Cp0X8I67.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลส่วนตัว</title>
+    <!-- นำเข้า Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- นำเข้า SweetAlert2 สำหรับแสดงกล่องข้อความ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- นำเข้า LIFF SDK ของ LINE -->
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 
+    <style>
+        /* ซ่อน overlay สำหรับโหลด */
+        #loadingOverlay {  
+            display: none; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.26); 
+            border-radius:15px; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
 
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LINE Login</title>
+        /* การตั้งค่าภาชนะที่ใช้แสดง overlay โหลด */
+        .loading-container { 
+            position: relative;  
+        }
 
-  <meta property="og:title" content="LINE Login">
-  <meta property="og:description" content="เข้าสู่ระบบ Demo">
-  <meta property="og:image" content="https://vos.line-scdn.net/login-web/img/favicon.ico">
-  <link rel="shortcut icon" type="image/x-icon" href="https://vos.line-scdn.net/login-web/img/favicon.ico">
-  <link rel="icon" type="image/x-icon" sizes="32x32" href="https://vos.line-scdn.net/login-web/img/favicon-32x32.png">
-  <link rel="icon" type="image/x-icon" sizes="16x16" href="https://vos.line-scdn.net/login-web/img/favicon-16x16.png">
+        /* การตั้งค่าภาพกระพริบ */
+        @keyframes blink {  
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.5; } 
+        }
 
-  <link rel="apple-touch-icon-precomposed" href="https://vos.line-scdn.net/login-web/img/apple-touch-icon-precomposed.png">
-
-<script>/* analytics */
-(function(g,d){
-  var v='release/stable';
-  g._trmq=[];g._trm=function(){g._trmq.push(arguments)};
-  g.onerror=function(m,f,l,c){g._trm('send','exception',m,f,l,c)};
-  var h=location.protocol==='https:'?'https://d.line-scdn.net':'http://d.line-cdn.net';
-  var s=d.createElement('script');s.async=1;
-  s.src=h+'/n/_4/torimochi.js/public/v1/'+v+'/min/torimochi.js';
-  var t=d.getElementsByTagName('script')[0];t.parentNode.insertBefore(s,t);
-})(window, document);
-
-_trm('performance', { rate: 0.05 });
-_trm('enable', { productKey: "line-web-login-real" });
-/* /analytics */</script>
-
-<script type="text/javascript" charset="UTF-8" src="https://access.line.me/oauth2/v2.1/messages"></script>
-
-      <script type="module" crossorigin src="https://static.line-scdn.net/line_web_login/edge/dist/assets/index-B1a92QAj.js"></script>
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/modulepreload-polyfill-Dqv5PPZA.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/errorHandlerPlugin-CAnRQeig.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/Constant-DvWA3Li3.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/_commonjsHelpers-MdiGH4nz.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cPinCode-DUp_qU66.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/createRouter-C5dgiZpF.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/OverlayMixin-BNRR5XyH.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/ldsg-popup-ixwa8L1m.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/ldsm-text-button-Cl9N6ryY.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/_getPrototype-RalBc9gd.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lFooter01-CnOFJZNr.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/axiosPlugin-BZdyg-s6.js">
-    <link rel="modulepreload" crossorigin href="https://static.line-scdn.net/line_web_login/edge/dist/assets/uaPlugin-B5rBq2VH.js">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/cPinCode-B2vE_bMb.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/ldsm-text-button-C9ZTh4Vy.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/lFooter01-1Nnu-4mf.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/index-C85a4HgF.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/common-zb6n622y.css">
-    <link rel="stylesheet" href="https://static.line-scdn.net/line_web_login/edge/dist/assets/main-DkoxwFvU.css">
-
+        /* การตั้งค่าภาพกระพริบ */
+        .blink { 
+            animation: blink 1s infinite; 
+        }
+    </style>
 </head>
-
-<body ontouchstart="">
-<noscript>
-  <div class="LyWrap">
-    <!--CONTENTS-AREA-->
-    <div class="LyContents" role="main">
-      <div class="lyContentsInner">
-        <div class="MdBox01">
-          <section class="mdBox01Inner MdLYR03Error">
-            <div class="MdLogo01 mdLogo01P01">
-              <h1 class="mdLogo01Img">LINE</h1>
+<body class="bg-slate-100 h-screen">
+    <div class="max-w-md mx-auto p-4 mt-4">
+        <input type="hidden" id="displayName" name="displayName" value="J'ame  •">
+        <div class="loading-container">
+            <div id="loadingOverlay">
+                <div class="text-center text-white">ค้นหารายชื่อ..</div>
             </div>
-            <h2 class="mdLYR03Title mdMN10Title">
-              <span class="mdLYR03Icon MdIco01Alert">alert</span>
-              <span>เกิดข้อผิดพลาด JavaScript</span>
-            </h2>
-            <p class="mdLYR03Desc mdMN10Desc">
-              JavaScript ถูกปิดใช้งานบนเบราว์เซอร์<br />
-โปรดเปิดใช้งาน JavaScript เพื่อใช้เว็บไซต์นี้            </p>
-          </section>
+            <div class="flex justify-center items-center">
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <img class="mx-auto w-24 h-24 object-cover rounded-lg mr-4" id="columnEData"
+                             src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png">
+                        <div>
+                            <input type="text"
+                                   class="input-field bg-slate-50 text-white text-md font-bold bg-opacity-0 "
+                                   id="columnBData" placeholder="ชื่อ" name="columnBData" readonly>
+                            <input type="text" class="input-field text-white text-md bg-white bg-opacity-0 "
+                                   id="columnCData" placeholder="รหัสพนักงาน" name="columnCData" readonly>
+                            <input type="text" class="input-field text-white text-md bg-white bg-opacity-0 "
+                                   id="columnDData" placeholder="ตำแหน่ง" name="columnDData" readonly>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border rounded-lg">
+                        <div class="flex justify-between">
+                            <div>
+                                <h1 class="font-light text-white text-center text-sm">ลาพักร้อน</h1>
+                                <input type="text"
+                                       class="input-field text-md bg-white text-white text-bold text-center bg-opacity-0 py-1 w-full"
+                                       id="columnGData" placeholder="0" name="columnGData" readonly>
+                            </div>
+                            <div>
+                                <h1 class="font-light text-white text-center text-sm">ลากิจ</h1>
+                                <input type="text"
+                                       class="input-field text-md bg-white text-white text-bold text-center bg-opacity-0 py-1 w-full"
+                                       id="columnHData" placeholder="0" name="columnHData" readonly>
+                            </div>
+                            <div>
+                                <h1 class="font-light text-white text-center text-sm">ลาป่วย</h1>
+                                <input type="text"
+                                       class="input-field text-md bg-white text-white text-bold text-center bg-opacity-0 py-1 w-full"
+                                       id="columnIData" placeholder="0" name="columnIData" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="userId" name="userId">
+                    <input type="hidden" id="columnAData" name="columnAData">
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="max-w-md mx-auto py-4">
+            <form>
+                <div class="bg-white relative p-10 shadow-xl rounded-lg w-6/6 mx-auto">
+                    <div class="w-32 mb-5">
+                        <select type="text" id="typeId" name="typeId" class="w-full p-2 rounded-lg">
+                            <option value="ลาพักร้อน">ลาพักร้อน</option>
+                            <option value="ลาป่วย">ลาป่วย</option>
+                            <option value="ลากิจ">ลากิจ</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div class="mt-4 flex justify-between mb-5">
+                        <input type="date" id="startDateId" name="startDateId" class="w-1/2 mr-2 p-2 rounded-lg">
+                        <input type="date" id="endDateId" name="endDateId" class="w-1/2 ml-2 p-2 rounded-lg">
+                    </div>
+                    <div class="mt-6 mb-5">
+                        <input type="text" id="titleId" name="titleId" placeholder="หัวข้อเรื่อง"
+                               class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div class="mt-4 mb-5">
+                        <textarea id="detailId" name="detailId" placeholder="รายละเอียด"
+                                  class="w-full p-2 border rounded-lg"></textarea>
+                    </div>
+                    <div class="text-center bg-slate-100 rounded-lg my-5 p-4">
+                        <label for="file" class="cursor-pointer justify-between items-center"> อัพโหลดเอกสาร
+                            <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                   class="hidden">
+                            <div id="fileNameDisplay" class="text-slate-800 text-xs text-center mt-1">ยังไม่ได้เลือกไฟล์</div>
+                        </label>
+                        <div class="mx-auto text-slate-800 text-xs text-center mt-1">รูปแบบที่รองรับ jpg jpeg png pdf doc docx</div>
+                    </div>
+                    <button type="button" id="submitBtn"
+                            class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-slate-600">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
-</noscript>
+    <script>
+        // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App
+        const WEB_MEMBER_APP_URL = 'https://script.google.com/macros/s/AKfycbwQP2ufuABGdt3-Sk-ZRoMJZpKYbFPf5CZAcQHcs8JTo3eSF_43d_o49NuIPOSP3JQiFw/exec'; 
+        const WEB_APP_Leave_URL = 'https://script.google.com/macros/s/AKfycbzOR0FAB6yjtS7y7qJ3BOvnVcjJ90KcQTv6GRxewb0C-tW8ukiExvIj6IbGDI_qzn51IA/exec'; 
+        const LIFF_ID = '2006631944-WNM82440'; // Liff ID
 
-<div id="__layout">
-  <div class="LyBody" id="app">
-    <app :channel-id="2005732932"
-         :is-error="false"
-         :is-captcha="false"
-         captcha-url="/dialog/captcha/agLqoY0DSZBonh1ZgruLgvV0y4C19RKh0xjQnUTl6Aw"
-         :is-recaptcha="false"
-         recaptcha-key="6LdXvWEbAAAAANgA_K7oaUt_EtHee2RK1x0LJK3e"
-         recaptcha-action="login_v21"
-         verifier=""
-         line-rsa-url="/authct/v1/keys/line"
-         pincode-url="/pincode"
-         open-authentication-session-url="/oauth2/v2.1/authn/session"
-         open-authn-session-api-url="/oauth2/v2.1/authn/session"
-         issue-line-enc-key-api-url="/oauth2/v2.1/authn/keys/line"
-         wait-pin-code-verification-api-url="/qrlogin/oauth2/v2.1/authn/pin/wait"
-         qr-code-url="/qrlogin/v1/session"
-         wait-qr-code-verification-complete-url="/qrlogin/v1/qr/wait"
-         wait-pin-code-verification-complete-url="/qrlogin/v1/pin/wait"
-         :enable-continue-without-login="false"
-         :switch-amr="true"
-         login-retry-page-url="/oauth2/v2.1/noauto-login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fapp_id%3D2005732932-jAabBGvP%26client_id%3D2005732932%26scope%3Dchat_message.write%2520openid%2520profile%26state%3Do9vlz8f1TzMP%26response_type%3Dcode%26code_challenge_method%3DS256%26code_challenge%3D8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk%26liff_sdk_version%3D2.25.0%26type%3DL%26redirect_uri%3Dhttps%253A%252F%252Fllll12t.github.io%252FAccount%252Fleave.html%26bot_prompt%3Dnormal&loginChannelId=2005732932&switch_amr=true&reqId=mDqbqHd9k2Eyy2agr0q2TK"
-         authorize-page-url="/oauth2/v2.1/authenticate"
-         return-uri="/oauth2/v2.1/authorize/consent?app_id=2005732932-jAabBGvP&amp;client_id=2005732932&amp;scope=chat_message.write%20openid%20profile&amp;state=o9vlz8f1TzMP&amp;response_type=code&amp;code_challenge_method=S256&amp;code_challenge=8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk&amp;liff_sdk_version=2.25.0&amp;type=L&amp;redirect_uri=https%3A%2F%2Fllll12t.github.io%2FAccount%2Fleave.html&amp;bot_prompt=normal"
-         
-         auto-login-fallback-url="https://access-auto.line.me/oauth2/v2.1/login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fapp_id%3D2005732932-jAabBGvP%26client_id%3D2005732932%26scope%3Dchat_message.write%2520openid%2520profile%26state%3Do9vlz8f1TzMP%26response_type%3Dcode%26code_challenge_method%3DS256%26code_challenge%3D8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk%26liff_sdk_version%3D2.25.0%26type%3DL%26redirect_uri%3Dhttps%253A%252F%252Fllll12t.github.io%252FAccount%252Fleave.html%26bot_prompt%3Dnormal&amp;loginChannelId=2005732932&amp;loginState=K8dBckYhCpGhf29voiZFcw"
-         line-download-url="https://access-auto.line.me/oauth2/v2.1/login?returnUri=%2Foauth2%2Fv2.1%2Fauthorize%2Fconsent%3Fapp_id%3D2005732932-jAabBGvP%26client_id%3D2005732932%26scope%3Dchat_message.write%2520openid%2520profile%26state%3Do9vlz8f1TzMP%26response_type%3Dcode%26code_challenge_method%3DS256%26code_challenge%3D8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk%26liff_sdk_version%3D2.25.0%26type%3DL%26redirect_uri%3Dhttps%253A%252F%252Fllll12t.github.io%252FAccount%252Fleave.html%26bot_prompt%3Dnormal&amp;loginChannelId=2005732932&amp;loginState=K8dBckYhCpGhf29voiZFcw"
-         
-         
-    >
-      <template v-slot:serverside_field>
-        <input type="hidden" name="__csrf" id="__csrf" value="66KLzNkkLlQ20nr0CHuMJO">
-        <input type="hidden" name="loginChannelId" value="2005732932">
-        <input type="hidden" name="returnUri" value="/oauth2/v2.1/authorize/consent?app_id=2005732932-jAabBGvP&amp;client_id=2005732932&amp;scope=chat_message.write%20openid%20profile&amp;state=o9vlz8f1TzMP&amp;response_type=code&amp;code_challenge_method=S256&amp;code_challenge=8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk&amp;liff_sdk_version=2.25.0&amp;type=L&amp;redirect_uri=https%3A%2F%2Fllll12t.github.io%2FAccount%2Fleave.html&amp;bot_prompt=normal">
-        <input type="hidden" name="lang" value="th_TH">
-        <input type="hidden" name="state" value="">
-        <input type="hidden" name="displayType" value="b">
-        <input type="hidden" name="captchaKey" value="agLqoY0DSZBonh1ZgruLgvV0y4C19RKh0xjQnUTl6Aw">
-      </template>
+        // เริ่มการทำงานเมื่อโหลดหน้าเว็บ
+        window.onload = async function () {
+            await initializeLiff();
+        };
 
-      <template v-slot:serverside_redirect_query>
-        <input type="hidden" name="__csrf" id="__csrf" value="66KLzNkkLlQ20nr0CHuMJO">
-        <input type="hidden" name="loginChannelId" value="2005732932">
-        <input type="hidden" name="returnUri" value="/oauth2/v2.1/authorize/consent?app_id=2005732932-jAabBGvP&amp;client_id=2005732932&amp;scope=chat_message.write%20openid%20profile&amp;state=o9vlz8f1TzMP&amp;response_type=code&amp;code_challenge_method=S256&amp;code_challenge=8a4uAvOiTwXWIMBCezJpgRA0Ta2_sj4iYambQHb3-zk&amp;liff_sdk_version=2.25.0&amp;type=L&amp;redirect_uri=https%3A%2F%2Fllll12t.github.io%2FAccount%2Fleave.html&amp;bot_prompt=normal">
-      </template>
-    </app>
-  </div>
+        // ฟังก์ชันสำหรับเริ่มการทำงานของ LIFF
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: `${LIFF_ID}` }); // ใช้ Liff ID ของคุณ
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error('Error initializing LIFF:', error);
+            }
+        }
 
-  <script src="https://static.line-scdn.net/line_web_login/1936bb1805f/dist/lc_common.js"></script>
-</div>
+        // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ผู้ใช้
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                document.getElementById('userId').value = userId;
+                document.getElementById('displayName').value = profile.displayName;
+                await fetchData(userId);
+            } catch (error) {
+                console.error('Error getting profile data:', error);
+            }
+        }
 
-<script>
-  var lap_optout_check_api_url = "https://optout-api.tr.line.me/enabled";
-</script>
+        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets
+        async function fetchData(userId) {
+            showLoading(true);
+            try {
+                const response = await fetch(`${WEB_MEMBER_APP_URL}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'fetchData', userId: userId })
+                });
+                const data = await response.json();
+                data.sort((a, b) => new Date(b[6]) - new Date(a[6]));
+                const row = data.find(row => row[1] === userId);
+                if (row) {
+                    displayData(row);
+                } else {
+                    console.log('No data found for userId:', userId);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
 
-<script src="https://static.line-scdn.net/line_web_login/1936bb1805f/dist/lap_optout_check.min.js"></script>
+        // ฟังก์ชันสำหรับแสดงข้อมูลบนหน้าเว็บ
+        function displayData(row) {
+            document.getElementById('columnAData').value = row[1] || '';
+            document.getElementById('columnBData').value = row[2] || '';
+            document.getElementById('columnCData').value = row[3] || '';
+            document.getElementById('columnDData').value = row[4] || '';
+            document.getElementById('columnEData').src = row[5] || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+            document.getElementById('columnGData').value = row[7] || '';
+            document.getElementById('columnHData').value = row[8] || '';
+            document.getElementById('columnIData').value = row[9] || '';
+        }
 
+        // ฟังก์ชันสำหรับแสดง/ซ่อนการโหลดข้อมูล
+        function showLoading(isLoading) {
+            const overlay = document.getElementById('loadingOverlay');
+            const inputs = document.querySelectorAll('.input-field');
+            if (isLoading) {
+                overlay.style.display = 'flex';
+                inputs.forEach(input => input.disabled = true);
+            } else {
+                overlay.style.display = 'none';
+                inputs.forEach(input => input.disabled = false);
+            }
+        }
 
+        // การตั้งค่าตัวแปรสำหรับการส่งข้อมูล
+        let url = `${WEB_APP_Leave_URL}`;
+        let fileInput = document.getElementById("file");
+        let userlineIdInput = document.getElementById("userId");
+        let nameIdInput = document.getElementById("columnBData");
+        let numberIdInput = document.getElementById("columnCData");
+        let roleId = document.getElementById("columnDData");
+        let typeId = document.getElementById("typeId");
+        let startDateId = document.getElementById("startDateId");
+        let endDateId = document.getElementById("endDateId");
+        let titleId = document.getElementById("titleId");
+        let detailId = document.getElementById("detailId");
+        let submitBtn = document.getElementById("submitBtn");
+        let fileNameDisplay = document.getElementById("fileNameDisplay");
 
+        // แสดงชื่อไฟล์ที่เลือก
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'ยังไม่ได้เลือกไฟล์';
+            }
+        });
+
+        // ฟังก์ชันสำหรับแปลงไฟล์เป็น base64
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ฟังก์ชันสำหรับตรวจสอบความถูกต้องของฟอร์ม
+        function validateForm() {
+            const userlineId = userlineIdInput.value.trim();
+            const nameId = nameIdInput.value.trim();
+            const roleIdValue = roleId.value.trim();
+            const typeIdValue = typeId.value.trim();
+            const startDateIdValue = startDateId.value.trim();
+            const endDateIdValue = endDateId.value.trim();
+            const titleIdValue = titleId.value.trim();
+            const detailIdValue = detailId.value.trim();
+
+            if (userlineId === '' || nameId === '' || roleIdValue === '' || typeIdValue === '' || startDateIdValue === '' || endDateIdValue === '' || titleIdValue === '' || detailIdValue === '') {
+                return false;
+            }
+
+            return true;
+        }
+
+        // ฟังก์ชันสำหรับจัดการคลิกปุ่มส่งข้อมูล
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields.',
+                });
+                return;
+            }
+
+            const isConfirmed = await showConfirmationDialog();
+
+            if (isConfirmed) {
+                submitBtn.disabled = true;
+
+                try {
+                    let obj = {
+                        userlineId: userlineIdInput.value,
+                        nameId: nameIdInput.value,
+                        roleId: roleId.value,
+                        numberId: numberIdInput.value,
+                        typeId: typeId.value,
+                        startDateId: startDateId.value,
+                        endDateId: endDateId.value,
+                        titleId: titleId.value,
+                        detailId: detailId.value
+                    };
+
+                    if (fileInput.files.length > 0) {
+                        let file = fileInput.files[0];
+                        let base64 = await getBase64(file);
+
+                        obj.base64 = base64;
+                        obj.type = file.type;
+                        obj.name = file.name;
+                    }
+
+                    Swal.fire({
+                        title: '<div class="text-md">กำลังบันทึก, รอสักครู่...</div>',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        html: '<div class="swal2-loading"></div>',
+                        onBeforeOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj)
+                    });
+
+                    let data = await response.text();
+
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
+                        icon: 'success',
+                        confirmButtonText: 'ปิด',
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            // Reset form
+                            document.querySelector('form').reset();
+                            await sendFlexMessage(obj); // ส่งข้อความ Flex Message หลังจากการส่งข้อมูล
+                        }
+                    });
+                    console.log(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while submitting data.',
+                    });
+
+                    console.error(error);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            } else {
+                Swal.fire('Submission Canceled', 'Your data has not been submitted.', 'info');
+            }
+        });
+
+        // ฟังก์ชันสำหรับแสดงกล่องยืนยันการส่งข้อมูล
+        async function showConfirmationDialog() {
+            const confirmation = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ส่งข้อมูล!',
+                cancelButtonText: 'ไม่, ยกเลิก'
+            });
+
+            return confirmation.isConfirmed;
+        }
+
+        // ฟังก์ชันสำหรับส่ง Flex Message ผ่าน LINE
+        async function sendFlexMessage(data) {
+            const flexMessage = {
+                type: "flex",
+                altText: "คำขออนุมัติการลา",
+                contents: {
+                    type: "bubble",
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        contents: [
+                            { type: "text", text: "🟢 คำขออนุมัติการลา", weight: "bold", size: "md", color: "#1DB446" },
+                            {
+                                type: "box", layout: "vertical", margin: "lg", spacing: "sm", contents: [
+                                    { type: "text", text: `ชื่อ: ${data.nameId}` },
+                                    { type: "text", text: `เรื่อง: ${data.typeId}` },
+                                    { type: "text", text: `วันเริ่มต้น: ${formatDate(data.startDateId)}` },
+                                    { type: "text", text: `วันสิ้นสุด: ${formatDate(data.endDateId)}` },
+                                    { type: "text", color: '#2d63c7', text: `📋รอการอนุมัติ` }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
+            try { 
+                await liff.sendMessages([flexMessage]);
+                liff.closeWindow(); // ปิดหน้าต่าง LIFF
+                console.log("Flex message sent"); 
+            } catch (error) { 
+                console.error("Error sending Flex message:", error); 
+            }
+        }
+
+        // ฟังก์ชันสำหรับรับวันที่ในรูปแบบ "YYYY-MM-DD"
+        function getFormattedDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // กำหนดค่าของ input เป็นวันที่ปัจจุบัน
+        document.getElementById('startDateId').value = getFormattedDate();
+        document.getElementById('endDateId').value = getFormattedDate();
+
+        // ฟังก์ชันสำหรับแปลงวันที่เป็นรูปแบบที่ต้องการ
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+        }
+    </script>
 </body>
 </html>
