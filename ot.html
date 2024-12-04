@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ฟอร์มขอทำโอที</title>
+    <!-- นำเข้า Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- นำเข้า SweetAlert2 สำหรับแสดงกล่องข้อความ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- นำเข้า LIFF SDK ของ LINE -->
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+
+    <style>
+        #loadingOverlay {  
+            display: none; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.26); 
+            border-radius:15px; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+
+        .loading-container { 
+            position: relative;  
+        }
+
+        @keyframes blink {  
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.5; } 
+        }
+
+        .blink { 
+            animation: blink 1s infinite; 
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen">
+    <div class="max-w-md mx-auto p-4 mt-4">
+        <input type="hidden" id="displayName" name="displayName" value="J'ame  •">
+        <div class="loading-container">
+            <div id="loadingOverlay">
+                <div class="text-center text-white">ค้นหารายชื่อ..</div>
+            </div>
+            <div class="flex justify-center items-center">
+                <div class="bg-slate-800 rounded-lg shadow-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <img class="mx-auto w-24 h-24 object-cover rounded-lg mr-4" id="columnEData"
+                             src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png">
+                        <div>
+                            <input type="text"
+                                   class="input-field bg-slate-50 text-white text-md font-bold bg-opacity-0 "
+                                   id="columnBData" placeholder="ชื่อ" name="columnBData" readonly>
+                            <input type="text" class="input-field text-white text-md bg-white bg-opacity-0 "
+                                   id="columnCData" placeholder="รหัสพนักงาน" name="columnCData" readonly>
+                            <input type="text" class="input-field text-white text-md bg-white bg-opacity-0 "
+                                   id="columnDData" placeholder="ตำแหน่ง" name="columnDData" readonly>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-600  rounded-md">
+                        <div class="flex justify-between">
+                            <h1 class="font-light text-white text-center text-md">🕔ล่วงเวลา</h1>
+                            <input type="text" class="input-field text-md bg-white text-white text-bold bg-opacity-0  "
+                                    id="columnGData"  name="columnGData" readonly>
+                        </div>
+                    </div>
+                    <input type="hidden" id="userId" name="userId">
+                    <input type="hidden" id="columnAData" name="columnAData">
+                </div>
+            </div>
+        </div>
+        <div class="max-w-md mx-auto py-4">
+            <form>
+                <div class="bg-white relative p-10 shadow-xl rounded-lg w-6/6 mx-auto">
+
+                    <div class="flex justify-between">
+                    <div class="mt-4 flex justify-between mb-5">
+                        <input type="date" id="otDate" name="otDate" class="mr-2 p-2 rounded-lg">
+                    </div>
+
+                    <div class="mt-4 mb-5">
+                        <input type="text" id="totalTime" name="totalTime" class="w-full p-2 border rounded-lg bg-gray-100" readonly>
+                    </div>
+                 </div>
+                    <div class="mt-4 flex justify-between mb-5">
+                        <input type="time" id="startTime" name="startTime" class="w-1/2 mr-2 p-2 rounded-lg">
+                        <input type="time" id="endTime" name="endTime" class="w-1/2 ml-2 p-2 rounded-lg">
+                    </div>
+             
+                    <div class="mt-6 mb-5">
+                        <input type="text" id="otTitle" name="otTitle" placeholder="หัวข้อเรื่อง"
+                               class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div class="mt-4 mb-5">
+                        <textarea id="otDetail" name="otDetail" placeholder="รายละเอียด"
+                                  class="w-full p-2 border rounded-lg"></textarea>
+                    </div>
+                    <div class="text-center bg-slate-100 rounded-lg my-5 p-4">
+                        <label for="file" class="cursor-pointer justify-between items-center"> อัพโหลดเอกสาร
+                            <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                   class="hidden">
+                            <div id="fileNameDisplay" class="text-slate-800 text-xs text-center mt-1">ยังไม่ได้เลือกไฟล์</div>
+                        </label>
+                        <div class="mx-auto text-slate-800 text-xs text-center mt-1">รูปแบบที่รองรับ jpg jpeg png pdf doc docx</div>
+                    </div>
+                    <button type="button" id="submitBtn"
+                            class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-slate-600">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App
+        const WEB_MEMBER_APP_URL = ' '; 
+        const WEB_APP_OT_URL = ' '; 
+        const LIFF_ID = ' '; // Liff ID
+
+        // เริ่มการทำงานเมื่อโหลดหน้าเว็บ
+        window.onload = async function () {
+            await initializeLiff();
+        };
+
+        // ฟังก์ชันสำหรับเริ่มการทำงานของ LIFF
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: `${LIFF_ID}` }); // ใช้ Liff ID ของคุณ
+                if (liff.isLoggedIn()) {
+                    getUserProfile();
+                } else {
+                    liff.login();
+                }
+            } catch (error) {
+                console.error('Error initializing LIFF:', error);
+            }
+        }
+
+        // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ผู้ใช้
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                const userId = profile.userId;
+                document.getElementById('userId').value = userId;
+                document.getElementById('displayName').value = profile.displayName;
+                await fetchData(userId);
+            } catch (error) {
+                console.error('Error getting profile data:', error);
+            }
+        }
+
+        // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets
+        async function fetchData(userId) {
+            showLoading(true);
+            try {
+                const response = await fetch(`${WEB_MEMBER_APP_URL}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'fetchData', userId: userId })
+                });
+                const data = await response.json();
+                data.sort((a, b) => new Date(b[6]) - new Date(a[6]));
+                const row = data.find(row => row[1] === userId);
+                if (row) {
+                    displayData(row);
+                } else {
+                    console.log('No data found for userId:', userId);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ฟังก์ชันสำหรับแสดงข้อมูลบนหน้าเว็บ
+        function displayData(row) {
+            document.getElementById('columnAData').value = row[1] || '';
+            document.getElementById('columnBData').value = row[2] || '';
+            document.getElementById('columnCData').value = row[3] || '';
+            document.getElementById('columnDData').value = row[4] || '';
+            document.getElementById('columnEData').src = row[5] || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+            document.getElementById('columnGData').value = row[10] || '';
+         
+
+        }
+
+        // ฟังก์ชันสำหรับแสดง/ซ่อนการโหลดข้อมูล
+        function showLoading(isLoading) {
+            const overlay = document.getElementById('loadingOverlay');
+            const inputs = document.querySelectorAll('.input-field');
+            if (isLoading) {
+                overlay.style.display = 'flex';
+                inputs.forEach(input => input.disabled = true);
+            } else {
+                overlay.style.display = 'none';
+                inputs.forEach(input => input.disabled = false);
+            }
+        }
+
+        // การตั้งค่าตัวแปรสำหรับการส่งข้อมูล
+        let url = `${WEB_APP_OT_URL}`;
+        let userlineIdInput = document.getElementById("userId");
+        let nameIdInput = document.getElementById("columnBData");
+        let numberIdInput = document.getElementById("columnCData");
+        let roleId = document.getElementById("columnDData");
+        let otDate = document.getElementById("otDate");
+        let startTime = document.getElementById("startTime");
+        let endTime = document.getElementById("endTime");
+        let totalTime = document.getElementById("totalTime");
+        let otTitle = document.getElementById("otTitle");
+        let otDetail = document.getElementById("otDetail");
+        let submitBtn = document.getElementById("submitBtn");
+        let fileInput = document.getElementById("file");
+        let fileNameDisplay = document.getElementById("fileNameDisplay");
+
+        // แสดงชื่อไฟล์ที่เลือก
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'ยังไม่ได้เลือกไฟล์';
+            }
+        });
+
+        // ฟังก์ชันสำหรับแปลงไฟล์เป็น base64
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                let reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ฟังก์ชันสำหรับคำนวณเวลาทำโอที
+        function calculateTimeDifference(start, end) {
+            const startTime = new Date(`1970-01-01T${start}:00`);
+            const endTime = new Date(`1970-01-01T${end}:00`);
+            const diff = (endTime - startTime) / 60000; // ความแตกต่างในนาที
+
+            const hours = Math.floor(diff / 60);
+            const minutes = diff % 60;
+
+            return `${hours} ชั่วโมง ${minutes} นาที`;
+        }
+
+        // คำนวณเวลาทำโอทีเมื่อเปลี่ยนแปลงเวลา
+        startTime.addEventListener('change', () => {
+            if (startTime.value && endTime.value) {
+                totalTime.value = calculateTimeDifference(startTime.value, endTime.value);
+            }
+        });
+
+        endTime.addEventListener('change', () => {
+            if (startTime.value && endTime.value) {
+                totalTime.value = calculateTimeDifference(startTime.value, endTime.value);
+            }
+        });
+
+        // ฟังก์ชันสำหรับตรวจสอบความถูกต้องของฟอร์ม
+        function validateForm() {
+            const userlineId = userlineIdInput.value.trim();
+            const nameId = nameIdInput.value.trim();
+            const roleIdValue = roleId.value.trim();
+            const otDateValue = otDate.value.trim();
+            const startTimeValue = startTime.value.trim();
+            const endTimeValue = endTime.value.trim();
+            const otTitleValue = otTitle.value.trim();
+            const otDetailValue = otDetail.value.trim();
+
+            if (userlineId === '' || nameId === '' || roleIdValue === '' || otDateValue === '' || startTimeValue === '' || endTimeValue === '' || otTitleValue === '' || otDetailValue === '') {
+                return false;
+            }
+
+            return true;
+        }
+
+        // ฟังก์ชันสำหรับจัดการคลิกปุ่มส่งข้อมูล
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields.',
+                });
+                return;
+            }
+
+            const isConfirmed = await showConfirmationDialog();
+
+            if (isConfirmed) {
+                submitBtn.disabled = true;
+
+                try {
+                    let obj = {
+                        userlineId: userlineIdInput.value,
+                        nameId: nameIdInput.value,
+                        roleId: roleId.value,
+                        numberId: numberIdInput.value,
+                        otDate: otDate.value,
+                        startTime: startTime.value,
+                        endTime: endTime.value,
+                        totalTime: totalTime.value,
+                        otTitle: otTitle.value,
+                        otDetail: otDetail.value
+                    };
+
+                    if (fileInput.files.length > 0) {
+                        let file = fileInput.files[0];
+                        let base64 = await getBase64(file);
+
+                        obj.base64 = base64;
+                        obj.type = file.type;
+                        obj.name = file.name;
+                    }
+
+                    Swal.fire({
+                        title: '<div class="text-md">กำลังบันทึก, รอสักครู่...</div>',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        html: '<div class="swal2-loading"></div>',
+                        onBeforeOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj)
+                    });
+
+                    let data = await response.text();
+
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
+                        icon: 'success',
+                        confirmButtonText: 'ปิด',
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            // Reset form
+                            document.querySelector('form').reset();
+                            await sendFlexMessage(obj); // ส่งข้อความ Flex Message หลังจากการส่งข้อมูล
+                        }
+                    });
+                    console.log(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while submitting data.',
+                    });
+
+                    console.error(error);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            } else {
+                Swal.fire('Submission Canceled', 'Your data has not been submitted.', 'info');
+            }
+        });
+
+        // ฟังก์ชันสำหรับแสดงกล่องยืนยันการส่งข้อมูล
+        async function showConfirmationDialog() {
+            const confirmation = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ส่งข้อมูล!',
+                cancelButtonText: 'ไม่, ยกเลิก'
+            });
+
+            return confirmation.isConfirmed;
+        }
+
+        // ฟังก์ชันสำหรับส่ง Flex Message ผ่าน LINE
+        async function sendFlexMessage(data) {
+            const flexMessage = {
+                type: "flex",
+                altText: "คำขออนุมัติการทำโอที",
+                contents: {
+                    type: "bubble",
+                    body: {
+                        type: "box",
+                        layout: "vertical",
+                        contents: [
+                            { type: "text", text: "🟢 คำขออนุมัติการทำโอที", weight: "bold", size: "md", color: "#1DB446" },
+                            {
+                                type: "box", layout: "vertical", margin: "lg", spacing: "sm", contents: [
+                                    { type: "text", text: `ชื่อ: ${data.nameId}` },
+                                    { type: "text", text: `วันที่ทำโอที: ${formatDate(data.otDate)}` },
+                                    { type: "text", text: `เวลาที่เริ่ม: ${data.startTime}` },
+                                    { type: "text", text: `เวลาที่สิ้นสุด: ${data.endTime}` },
+                                    { type: "text", color: '#2d63c7', text: `📋รอการอนุมัติ` }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
+            try { 
+                await liff.sendMessages([flexMessage]);
+                liff.closeWindow(); // ปิดหน้าต่าง LIFF
+                console.log("Flex message sent"); 
+            } catch (error) { 
+                console.error("Error sending Flex message:", error); 
+            }
+        }
+
+        // ฟังก์ชันสำหรับรับวันที่ในรูปแบบ "YYYY-MM-DD"
+        function getFormattedDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // กำหนดค่าของ input เป็นวันที่ปัจจุบัน
+        document.getElementById('otDate').value = getFormattedDate();
+
+        // ฟังก์ชันสำหรับแปลงวันที่เป็นรูปแบบที่ต้องการ
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>
