@@ -331,7 +331,7 @@ submitBtn.addEventListener('click', async (event) => {
 
             let response = await fetch(url, {
                 method: "POST",
-                body: JSON.stringify(obj) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
+                postData: JSON.stringify(obj) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
             });
 
             let data = await response.text();
