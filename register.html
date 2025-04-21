@@ -45,6 +45,17 @@
                     <!-- ฟิลด์สำหรับใส่ตำแหน่ง -->
                     <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="keynumber2Id" placeholder="ตำแหน่ง" name="keynumber2Id" required>
                 </div>
+		<div class="mb-6">  <!-- ฟิลด์สำหรับใส่แผนก -->
+		    <select class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" id="departmentId" name="departmentId" required>
+		        <option value="" disabled selected>เลือกแผนก</option>
+		        <option value="PURCHASE">งานจัดซื้อ</option>
+			<option value="STOCK">คลังยา</option>
+		        <option value="OPD">ห้องยาผู้ป่วยนอก</option>
+		        <option value="IPD">ห้องยาผู้ป่วยใน</option>
+		        <option value="MANU">งานผลิต</option>
+		        <option value="PRIMARY">งานปฐมภูมิ</option>
+		        </select>
+		</div>
                 </div>
                 <!-- ปุ่มสำหรับบันทึกข้อมูล -->
                 <button type="button" id="submitBtn" class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-blue-700">บันทึกข้อมูล</button>
