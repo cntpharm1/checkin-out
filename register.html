@@ -253,11 +253,19 @@ async function sendFlexMessage() {
   }); 
   console.log(JSON.stringify(objTel))
   //UrlFetchApp.fetch(webhookUrl, options);	
-  let responseTel = await fetch(webhookUrl, {
-                        method: "POST",
-                        body: JSON.stringify(objTel) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
-                    });
-  let dataTel = await responseTel.text();
+  try {
+	    let responseTel = await fetch(webhookUrl, {
+	        method: "POST",
+	        headers: {
+	            'Content-Type': 'application/json' // เพิ่ม Content-Type header
+	        },
+	        body: JSON.stringify(objTel) // ส่ง objTel โดยตรง ไม่ต้อง Stringify ซ้ำ
+	    });
+	    let dataTel = await responseTel.text();
+	    console.log("Response from Apps Script:", dataTel); // ดู Response ที่ Apps Script ส่งกลับมา
+   } catch (error) {
+	    console.error("Error sending data to Apps Script:", error);
+   }
  
 }
 //convert flexmessage to html to send via telegram
