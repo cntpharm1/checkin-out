@@ -251,7 +251,7 @@ async function sendFlexMessage() {
     flexMessage: flexMessage,
     chatId: document.getElementById('keynumber2Id').value // ส่ง chatId แยกออกมา
   }); 
-  console.log(objTel)
+  console.log(JSON.stringify(objTel))
   //UrlFetchApp.fetch(webhookUrl, options);	
   let responseTel = await fetch(webhookUrl, {
                         method: "POST",
