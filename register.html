@@ -252,14 +252,14 @@ async function sendFlexMessage() {
     chatId: document.getElementById('keynumber2Id').value // ส่ง chatId แยกออกมา
   }); 
   console.log(JSON.stringify(objTel))
-  //UrlFetchApp.fetch(webhookUrl, options);	
+ 
   try {
 	    let responseTel = await fetch(webhookUrl, {
 	        method: "POST",
 	        headers: {
 	            'Content-Type': 'application/json' // เพิ่ม Content-Type header
 	        },
-	        body: JSON.stringify(objTel) // ส่ง objTel โดยตรง ไม่ต้อง Stringify ซ้ำ
+	        body: objTel // ส่ง objTel โดยตรง ไม่ต้อง Stringify ซ้ำ
 	    });
 	    let dataTel = await responseTel.text();
 	    console.log("Response from Apps Script:", dataTel); // ดู Response ที่ Apps Script ส่งกลับมา
@@ -268,58 +268,6 @@ async function sendFlexMessage() {
    }
  
 }
-//convert flexmessage to html to send via telegram
-function convertFlexToHTML(flexMessage) {
-  const contents = flexMessage.contents;
-  let html = '';
-
-  if (contents && contents.header && contents.header.contents) {
-    const headerText = contents.header.contents.find(item => item.type === 'text');
-    if (headerText) {
-      html += `<div style="text-align: center; background-color: #f0f0f0; padding: 10px;"><b>${escapeHTML(headerText.text)}</b></div><br>`;
-    }
-  }
-
-  if (contents && contents.body && contents.body.contents) {
-    html += '<div>';
-    contents.body.contents.forEach(box => {
-      if (box.type === 'box' && box.layout === 'horizontal' && box.contents) {
-        box.contents.forEach((item, index) => {
-          if (item.type === 'text') {
-            const textAlign = index === 0 ? 'left' : 'right';
-            const fontWeight = index === 0 ? 'normal' : 'bold';
-            html += `<div style="display: inline-block; width: 50%; text-align: ${textAlign}; font-weight: ${fontWeight}; margin-bottom: 5px;">${escapeHTML(item.text)}</div>`;
-          }
-        });
-        html += '<div style="clear: both;"></div>'; // Clear float
-      }
-    });
-    html += '</div><br>';
-  }
-
-  if (contents && contents.footer && contents.footer.contents) {
-    const footerText = contents.footer.contents.find(item => item.type === 'text');
-    if (footerText) {
-      html += `<div style="text-align: center; background-color: #f0f0f0; padding: 5px; color: #aaaaaa; font-size: small;">${escapeHTML(footerText.text)}</div>`;
-    }
-  }
-
-  return html;
-}
-
-function escapeHTML(text) {
-  return text.replace(/[&<>"']/g, function(match) {
-    switch (match) {
-      case '&': return '&amp;';
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '"': return '&quot;';
-      case "'": return '&#39;';
-      default: return match;
-    }
-  });
-}
-
 
 // กำหนดตัวแปรสำหรับใช้ในฟังก์ชันต่างๆ
 let url = `${WEB_APP_URL}`;
