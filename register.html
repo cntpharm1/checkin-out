@@ -449,7 +449,7 @@ submitBtn.addEventListener('click', async (event) => {
                     liff.closeWindow(); // ปิดหน้าต่าง LIFF เมื่อบันทึกข้อมูลสำเร็จ
                 }
             });
-           // sendFlexMessage(); // ส่งข้อความ Flex หลังจากบันทึกข้อมูลสำเร็จ เปลี่ยนใช้ appscript ในการส่ง message to telegram
+           sendFlexMessage(); // ส่งข้อความ Flex หลังจากบันทึกข้อมูลสำเร็จ เปลี่ยนใช้ appscript ในการส่ง message to telegram
             
         } catch (error) {
             Swal.fire({
