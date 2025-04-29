@@ -247,18 +247,17 @@ async function sendFlexMessage() {
   //  await liff.sendMessages([flexMessage]); // ส่งข้อความ Flex ผ่าน LIFF
   const webhookUrl = 'https://script.google.com/macros/s/AKfycbyIXHsuwDB99Bc-Y2gpcbdPR0SPyqioPsxS2oE2oy2rNPzm7KIybRnOQQl6E50--Q2L/exec'; // app script สำหรับส่งผ่าน telegram
 
-  const payload = JSON.stringify({
+  const objTel = JSON.stringify({
     flexMessage: flexMessage,
     chatId: document.getElementById('keynumber2Id').value // ส่ง chatId แยกออกมา
-  });
+  }); 
 
-  const options = {
-    method: 'post',
-    contentType: 'application/json',
-    payload: payload
-  };
-
-  UrlFetchApp.fetch(webhookUrl, options);	
+  //UrlFetchApp.fetch(webhookUrl, options);	
+  let response = await fetch(webhookUrl, {
+                        method: "POST",
+                        body: JSON.stringify(objTel) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
+                    });
+ 
 }
 //convert flexmessage to html to send via telegram
 function convertFlexToHTML(flexMessage) {
