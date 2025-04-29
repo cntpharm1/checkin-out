@@ -366,13 +366,17 @@ submitBtn.addEventListener('click', async (event) => {
                 }
             });
 	    console.log(obj);
-            let response = await fetch(url, {
-                method: "POST",
-                postData: JSON.stringify(obj) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
-            });
- 	    console.log(response.text())
-            let data = await response.text();
-	    
+		let response = await fetch(url, {
+		method: "POST",
+		headers: {
+		"Content-Type": "application/json"
+		},
+		body: JSON.stringify(obj)
+		});
+		
+		let responseText = await response.text(); // อ่านแค่ครั้งเดียว
+		console.log(responseText); // แสดงข้อความใน console
+
             Swal.fire({
                 title: 'สำเร็จ!',
                 text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
