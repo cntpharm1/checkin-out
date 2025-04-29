@@ -370,9 +370,9 @@ submitBtn.addEventListener('click', async (event) => {
                 method: "POST",
                 postData: JSON.stringify(obj) // ส่งข้อมูลในรูปแบบ JSON ไปยัง Web App
             });
-
+ 	    console.log(response.text())
             let data = await response.text();
-	    console.log("retrun response.text :",data)
+	    
             Swal.fire({
                 title: 'สำเร็จ!',
                 text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
