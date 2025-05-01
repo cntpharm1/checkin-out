@@ -77,7 +77,7 @@
                 </div>
                 <div class="flex items-center space-x-2 mb-2">
                     <input type="text" class="input-field w-full border border-gray-300 p-2 rounded" id="columnDData"
-                        placeholder="ตำแหน่ง" name="columnDData" required>
+                        placeholder="CHAT_ID" name="columnDData" required>
                 </div>
                 <!-- ฟิลด์ที่ซ่อนอยู่สำหรับเก็บข้อมูลที่ไม่ต้องแสดงผล -->
                 <input type="hidden" id="userId" name="userId" />
@@ -412,6 +412,7 @@
                     long: longitudeInput.value,
                     address: fullAddressInput.value,
                     user: userId.value
+                    chatID : columnDData.value
                 };
                 fetch(url, {
                     method: "POST",
