@@ -175,6 +175,23 @@
     </div>
 </body>
 <script>
+    async function includeHTML() {
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/cntpharm1/checkin-out/main/sendTelegram.html');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const html = await response.text();
+        document.getElementById('includedContent').innerHTML = html;
+      } catch (error) {
+        console.error('ไม่สามารถโหลดไฟล์ HTML ได้:', error);
+        document.getElementById('includedContent').innerHTML = '<p>ไม่สามารถโหลดเนื้อหาได้ค่ะ/ครับ</p>';
+      }
+    }
+
+    includeHTML();
+</script>
+<script>
 
     // ประกาศค่า URL ที่ใช้เชื่อมต่อกับ Web App
     const WEB_APP_MEMBER_URL = 'https://script.google.com/macros/s/AKfycbwQP2ufuABGdt3-Sk-ZRoMJZpKYbFPf5CZAcQHcs8JTo3eSF_43d_o49NuIPOSP3JQiFw/exec';
