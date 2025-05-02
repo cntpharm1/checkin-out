@@ -47,16 +47,14 @@ async function sendMessagewithPic(message , chatId ,picURL) {
         const data = await response.json();
 
         if (data.status === 'success') {
-          document.getElementById('response').innerText = data.message;
+          console.log(data.message);
         } else {
-          document.getElementById('response').innerText = 'เกิดข้อผิดพลาด: ' + data.message;
+          console.log( 'เกิดข้อผิดพลาด: ' + data.message);
         }
       } catch (error) {
-        document.getElementById('response').innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error;
+        console.log( 'เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error);
       } finally {
-        document.getElementById('messageInput').value = '';
-        document.getElementById('chatIdInput').value = '';
-        document.getElementById('picUrlInput').value = '';
+        console.log(response);
       }
 }
   
