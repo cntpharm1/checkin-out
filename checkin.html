@@ -432,6 +432,20 @@
                     user: userId.value,
                     chatID : chatID.value
                 };
+                let   message = `
+                  <b>ข้อมูลการแจ้งเข้าออกงานของพนักงาน</b>
+                  <pre>
+                  ชื่อ-สกุล: ${columnBData.value}
+                  รหัสพนักงาน: ${columnCData.value}
+                  บันทึก: ${jobInput.value}
+                  หมายเหตุ: ${noteInput.value}
+                  วันที่: ${todayInput.value}
+                  เวลา: ${currentTime.value}
+                  สถานที่: ${fullAddressInput.value}
+                  </pre>
+                  <i>ข้อมูลจาก Google Sheet</i>
+                `;
+                console.log(message)
                 fetch(url, {
                     method: "POST",
                     body: JSON.stringify(obj),
